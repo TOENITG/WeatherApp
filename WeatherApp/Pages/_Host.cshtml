@@ -5,8 +5,7 @@
 @inject IHttpContextAccessor httpContextAccessor
 @{
     Layout = null;
-    //    BlazorAppContext.CurrentUserIP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
-    BlazorAppContext.CurrentUserIP = httpContextAccessor.HttpContext.Connection.LocalIpAddress.ToString();
+    BlazorAppContext.CurrentUserIP = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
 }
 
 <!DOCTYPE html>

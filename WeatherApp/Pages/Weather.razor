@@ -1,0 +1,17 @@
+﻿@page "/weather"
+@using System.Web
+
+<h3>Weather</h3>
+@ipAddress
+<button @onclick="GetIP">GetIP</button>
+
+
+@code {
+    string ipAddress;
+
+    private void GetIP()
+    {
+        ipAddress = BlazorAppContext.CurrentUserIP;
+    }
+
+}

@@ -44,6 +44,8 @@ namespace WeatherApp.Data
         {
             string weatherJSON = "{\"coord\": {\"lon\": 15.21, \"lat\": 59.27},\"weather\": [                {            \"id\": 802,            \"main\": \"Clouds\",            \"description\": \"scattered clouds\",            \"icon\": \"03d\"        }    ],    \"base\": \"stations\",    \"main\": {        \"temp\": 284.23,        \"feels_like\": 276.89,        \"temp_min\": 283.15,        \"temp_max\": 285.37,        \"pressure\": 1008,        \"humidity\": 31    },    \"visibility\": 10000,    \"wind\": {        \"speed\": 6.7,        \"deg\": 330    },    \"clouds\": {        \"all\": 50    },    \"dt\": 1589369066,    \"sys\": {        \"type\": 1,        \"id\": 1777,        \"country\": \"SE\",        \"sunrise\": 1589337017,        \"sunset\": 1589397652    },    \"timezone\": 7200,    \"id\": 2686657,    \"name\": \"Örebro\",    \"cod\": 200}";
             WeatherReportModel WeatherReport = JsonConvert.DeserializeObject<WeatherReportModel>(weatherJSON);
+            WeatherReport.Main.Feels_like -= Kelvin;
+            WeatherReport.Main.Temp -= Kelvin;
             return WeatherReport;
         }
 

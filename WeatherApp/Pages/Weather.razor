@@ -1,17 +1,51 @@
 ﻿@page "/weather"
-@using System.Web
+
+@using WeatherApp.Data
+@inject WeatherForecastService ForecastService
 
 <h3>Weather</h3>
 @ipAddress
-<button @onclick="GetIP">GetIP</button>
+<button @onclick="GetIPAddress">GetIP</button>
+<button @onclick="GetWeather">Get weather</button>
 
+
+@if (weatherAtLocation == null) {
+<p><em>Loading...</em></p>
+} else {
+<p>@weatherAtLocation.Name</p>
+<p>@weatherAtLocation.Coord.Lon</p>
+<p>@weatherAtLocation.Coord.Lat</p>
+<div>
+    <p>Temperature: @weatherAtLocation.Main.Temp</p>
+    <p>Feels like: @weatherAtLocation.Main.Feels_like</p>
+</div>
+
+
+
+}
 
 @code {
-    string ipAddress;
+   private WeatherReportModel weatherAtLocation;
+   string ipAddress;
+    double Kelvin = 273.15;
 
-    private void GetIP()
+    private string GetIP()
     {
+        return BlazorAppContext.CurrentUserIP;
+    }
+
+    private void GetIPAddress(){
         ipAddress = BlazorAppContext.CurrentUserIP;
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        weatherAtLocation =  await ForecastService.GetWeatherReport();
+    }
+
+    private void GetWeather() {
+    weatherAtLocation = ForecastService.GetWeather();
+}
+
 
 }

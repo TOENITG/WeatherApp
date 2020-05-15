@@ -4,10 +4,10 @@
 @inject WeatherForecastService ForecastService
 
 <h3>Weather</h3>
-@ipAddress
+<p>@ipAddress</p>
+<p>@ForecastService.IPAddress</p>
 <button @onclick="GetIPAddress">GetIP</button>
 <button @onclick="GetWeather">Get weather</button>
-
 
 @if (weatherAtLocation == null) {
 <p><em>Loading...</em></p>
@@ -19,9 +19,6 @@
     <p>Temperature: @weatherAtLocation.Main.Temp</p>
     <p>Feels like: @weatherAtLocation.Main.Feels_like</p>
 </div>
-
-
-
 }
 
 @code {

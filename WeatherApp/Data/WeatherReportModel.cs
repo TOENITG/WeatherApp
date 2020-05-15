@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace WeatherApp.Data
 {
@@ -37,7 +33,7 @@ namespace WeatherApp.Data
         public int All { get; set; }
     }
 
-    public class Wind
+        public class Wind
     {
         public double Speed { get; set; }
         public int Deg { get; set; }

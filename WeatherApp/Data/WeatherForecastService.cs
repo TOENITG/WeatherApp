@@ -14,8 +14,6 @@ namespace WeatherApp.Data
         public WeatherForecastService(IHttpContextAccessor httpContextAccssor)
         {
             _httpContextAccssor = httpContextAccssor;
-            UserAgent = _httpContextAccssor.HttpContext.Request.Headers["User-Agent"];
-            IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
         }
     
         public string UserAgent { get; set; }
@@ -28,8 +26,6 @@ namespace WeatherApp.Data
         private static readonly double Kelvin = 273.15;
         private static readonly string IPInfoAPIToken = "CCYTBD2Q3D";
         private static readonly string WeaterAPIToken = "345a23db5416c932e14dab8b194ba755";
-
-        
 
         public Task<WeatherForecast[]> GetForecastAsync(DateTime startDate)
         {
@@ -54,8 +50,9 @@ namespace WeatherApp.Data
     
         public async Task<WeatherReportModel> GetWeatherReport()
         {
+            //      IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
+            IPAddress = "";
 
-            IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
             var ipAddressInfo = GetIpAddressInfo(IPAddress);
 
             WeatherReportModel WeatherReport = new WeatherReportModel();
@@ -74,14 +71,27 @@ namespace WeatherApp.Data
             }
             return null;
         }
-
         public WeatherReportModel GetWeather()
         {
-            string weatherJSON = "{\"coord\": {\"lon\": 15.21, \"lat\": 59.27},\"weather\": [                {            \"id\": 802,            \"main\": \"Clouds\",            \"description\": \"scattered clouds\",            \"icon\": \"03d\"        }    ],    \"base\": \"stations\",    \"main\": {        \"temp\": 284.23,        \"feels_like\": 276.89,        \"temp_min\": 283.15,        \"temp_max\": 285.37,        \"pressure\": 1008,        \"humidity\": 31    },    \"visibility\": 10000,    \"wind\": {        \"speed\": 6.7,        \"deg\": 330    },    \"clouds\": {        \"all\": 50    },    \"dt\": 1589369066,    \"sys\": {        \"type\": 1,        \"id\": 1777,        \"country\": \"SE\",        \"sunrise\": 1589337017,        \"sunset\": 1589397652    },    \"timezone\": 7200,    \"id\": 2686657,    \"name\": \"Örebro\",    \"cod\": 200}";
-            WeatherReportModel WeatherReport = JsonConvert.DeserializeObject<WeatherReportModel>(weatherJSON);
-            WeatherReport.Main.Feels_like -= Kelvin;
-            WeatherReport.Main.Temp -= Kelvin;
-            return WeatherReport;
+            IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
+    
+            var ipAddressInfo = GetIpAddressInfo(IPAddress);
+
+            WeatherReportModel WeatherReport = new WeatherReportModel();
+
+            var httpClient = HttpClientFactory.Create();
+            var url = "https://api.openweathermap.org/data/2.5/weather?lat=59.27412&lon=15.2066&appid=345a23db5416c932e14dab8b194ba755";
+            HttpResponseMessage httpResponseMessage = httpClient.GetAsync(url).Result;
+            if (httpResponseMessage.StatusCode == HttpStatusCode.OK)
+            {
+                var content = httpResponseMessage.Content;
+                var data = content.ReadAsStringAsync();
+                WeatherReport = JsonConvert.DeserializeObject<WeatherReportModel>(data.Result);
+                WeatherReport.Main.Feels_like -= Kelvin;
+                WeatherReport.Main.Temp -= Kelvin;
+                return WeatherReport;
+            }
+            return null;
         }
     }
 }

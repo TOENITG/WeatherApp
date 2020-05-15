@@ -4,14 +4,11 @@
 @inject WeatherForecastService ForecastService
 
 <h3>Weather</h3>
-<p>@ipAddress</p>
-<p>@ForecastService.IPAddress</p>
-<button @onclick="GetIPAddress">GetIP</button>
-<button @onclick="GetWeather">Get weather</button>
 
 @if (weatherAtLocation == null) {
 <p><em>Loading...</em></p>
 } else {
+<p>@ForecastService.IPAddress</p>
 <p>@weatherAtLocation.Name</p>
 <p>@weatherAtLocation.Coord.Lon</p>
 <p>@weatherAtLocation.Coord.Lat</p>
@@ -23,26 +20,10 @@
 
 @code {
    private WeatherReportModel weatherAtLocation;
-   string ipAddress;
-    double Kelvin = 273.15;
 
-    private string GetIP()
+    protected override void OnInitialized()
     {
-        return BlazorAppContext.CurrentUserIP;
+        weatherAtLocation =  ForecastService.GetWeather();
     }
+ }
 
-    private void GetIPAddress(){
-        ipAddress = BlazorAppContext.CurrentUserIP;
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        weatherAtLocation =  await ForecastService.GetWeatherReport();
-    }
-
-    private void GetWeather() {
-    weatherAtLocation = ForecastService.GetWeather();
-}
-
-
-}

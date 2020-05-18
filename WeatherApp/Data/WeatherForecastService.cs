@@ -15,14 +15,15 @@ namespace WeatherApp.Data
         {
             _httpContextAccssor = httpContextAccssor;
         }
-    
-        public string UserAgent { get; set; }
-        public string IPAddress { get; set; }
-        
+
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
+
+        public string IPAddress;
+        private Microsoft.AspNetCore.Http.HttpContext HttpContext;
+
         private static readonly double Kelvin = 273.15;
         private static readonly string IPInfoAPIToken = "CCYTBD2Q3D";
         private static readonly string WeaterAPIToken = "345a23db5416c932e14dab8b194ba755";
@@ -38,6 +39,20 @@ namespace WeatherApp.Data
             }).ToArray());
         }
 
+        public string GetIPAddress()
+        {
+            string ipAddress = null;
+            try
+            {
+                // var IpAddres = new IpAddressModel();
+                // ipAddress = IpAddres.IpAddress;
+                ipAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                return ipAddress;
+            } catch
+            {
+                return null;
+            }
+        }
         public IpAddressInfoModel GetIpAddressInfo(string IPAddress)
         {
             string IpJson = "{\"country_code\":\"SE\",\"country_name\":\"Sweden\",\"region_name\":\"Orebro lan\"" +
@@ -50,7 +65,6 @@ namespace WeatherApp.Data
     
         public async Task<WeatherReportModel> GetWeatherReport()
         {
-            //      IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
             IPAddress = "";
 
             var ipAddressInfo = GetIpAddressInfo(IPAddress);
@@ -73,9 +87,35 @@ namespace WeatherApp.Data
         }
         public WeatherReportModel GetWeather()
         {
-            IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
-    
-            var ipAddressInfo = GetIpAddressInfo(IPAddress);
+            IPAddress = GetIPAddress();
+
+            IpAddressInfoModel ipAddressInfo = null;
+            if (!(IPAddress ==null))
+                ipAddressInfo = GetIpAddressInfo(IPAddress);
+
+            WeatherReportModel WeatherReport = new WeatherReportModel();
+
+            var httpClient = HttpClientFactory.Create();
+            var url = "https://api.openweathermap.org/data/2.5/weather?lat=59.27412&lon=15.2066&appid=345a23db5416c932e14dab8b194ba755";
+            HttpResponseMessage httpResponseMessage = httpClient.GetAsync(url).Result;
+            if (httpResponseMessage.StatusCode == HttpStatusCode.OK)
+            {
+                var content = httpResponseMessage.Content;
+                var data = content.ReadAsStringAsync();
+                WeatherReport = JsonConvert.DeserializeObject<WeatherReportModel>(data.Result);
+                WeatherReport.Main.Feels_like -= Kelvin;
+                WeatherReport.Main.Temp -= Kelvin;
+                return WeatherReport;
+            }
+            return null;
+        }
+
+        public WeatherReportModel GetWeather(string IPAddress)
+        {
+            IPAddress = GetIPAddress();
+            IpAddressInfoModel ipAddressInfo = null;
+            if (!(IPAddress == null))
+                ipAddressInfo = GetIpAddressInfo(IPAddress);
 
             WeatherReportModel WeatherReport = new WeatherReportModel();
 

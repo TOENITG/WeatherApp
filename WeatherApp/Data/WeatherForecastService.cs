@@ -109,29 +109,5 @@ namespace WeatherApp.Data
             }
             return null;
         }
-
-        public WeatherReportModel GetWeather(string IPAddress)
-        {
-            IPAddress = GetIPAddress();
-            IpAddressInfoModel ipAddressInfo = null;
-            if (!(IPAddress == null))
-                ipAddressInfo = GetIpAddressInfo(IPAddress);
-
-            WeatherReportModel WeatherReport = new WeatherReportModel();
-
-            var httpClient = HttpClientFactory.Create();
-            var url = "https://api.openweathermap.org/data/2.5/weather?lat=59.27412&lon=15.2066&appid=345a23db5416c932e14dab8b194ba755";
-            HttpResponseMessage httpResponseMessage = httpClient.GetAsync(url).Result;
-            if (httpResponseMessage.StatusCode == HttpStatusCode.OK)
-            {
-                var content = httpResponseMessage.Content;
-                var data = content.ReadAsStringAsync();
-                WeatherReport = JsonConvert.DeserializeObject<WeatherReportModel>(data.Result);
-                WeatherReport.Main.Feels_like -= Kelvin;
-                WeatherReport.Main.Temp -= Kelvin;
-                return WeatherReport;
-            }
-            return null;
-        }
     }
 }

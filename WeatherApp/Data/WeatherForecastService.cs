@@ -10,20 +10,14 @@ namespace WeatherApp.Data
 {
     public class WeatherForecastService
     {
-        private readonly IHttpContextAccessor _httpContextAccssor;
-        public WeatherForecastService(IHttpContextAccessor httpContextAccssor)
-        {
-            _httpContextAccssor = httpContextAccssor;
-        }
-
+     
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        public string IPAddress;
-        private Microsoft.AspNetCore.Http.HttpContext HttpContext;
-
+        public string IPAddress { get; set; }
+      
         private static readonly double Kelvin = 273.15;
         private static readonly string IPInfoAPIToken = "CCYTBD2Q3D";
         private static readonly string WeaterAPIToken = "345a23db5416c932e14dab8b194ba755";
@@ -39,19 +33,18 @@ namespace WeatherApp.Data
             }).ToArray());
         }
 
-        public string GetIPAddress()
+        public async Task<string> GetIPAddress()
         {
-            string ipAddress = null;
-            try
+            var httpClient = HttpClientFactory.Create();
+            var url = "https://api.ipify.org/";
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync(url);
+            if (httpResponseMessage.StatusCode == HttpStatusCode.OK)
             {
-                // var IpAddres = new IpAddressModel();
-                // ipAddress = IpAddres.IpAddress;
-                ipAddress = HttpContext.Connection.RemoteIpAddress.ToString();
-                return ipAddress;
-            } catch
-            {
-                return null;
+                var content = httpResponseMessage.Content;
+                var data = await content.ReadAsStringAsync();
+                return data;
             }
+            return null;
         }
         public IpAddressInfoModel GetIpAddressInfo(string IPAddress)
         {
@@ -63,9 +56,9 @@ namespace WeatherApp.Data
             return ipAddressInfo;
         }
     
-        public async Task<WeatherReportModel> GetWeatherReport()
+        public async Task<WeatherReportModel> GetWeatherReport(string ipAddress)
         {
-            IPAddress = "";
+            IPAddress = ipAddress;
 
             var ipAddressInfo = GetIpAddressInfo(IPAddress);
 
@@ -85,9 +78,9 @@ namespace WeatherApp.Data
             }
             return null;
         }
-        public WeatherReportModel GetWeather()
+        public async Task<WeatherReportModel> GetWeather()
         {
-            IPAddress = GetIPAddress();
+            IPAddress = await GetIPAddress();
 
             IpAddressInfoModel ipAddressInfo = null;
             if (!(IPAddress ==null))

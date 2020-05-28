@@ -1,47 +1,30 @@
 ﻿@page "/"
-@inject IJSRuntime JSRuntime;
+@inject HttpClient Http
+@using WeatherApp.Data
 
-<h1>Hello, world!</h1>
+<h1>Welcome To the Weather App</h1>
+<p>Your current Location: @UserLocation ( @UserPublicIpAddress)</p>
+<p>The Weather Condition is: @WeatherCondition</p>
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
-
-<h1>Call JavaScript Function Example</h1>
-
-<button type="button" class="btn btn-primary" @onclick="ConvertArray">
-    Convert Array
-</button>
-
-<p class="mt-2" style="font-size:1.6em">
-    <span class="badge badge-success">
-        @convertedText
-    </span>
-</p>
-
-@code {
-    // Quote (c)2005 Universal Pictures: Serenity
-    // https://www.uphe.com/movies/serenity
-    // David Krumholtz on IMDB: https://www.imdb.com/name/nm0472710/
-
-    private MarkupString convertedText =
-        new MarkupString("Select the <b>Convert Array</b> button.");
-
-    private uint[] quoteArray = new uint[]
-        {
-            60, 101, 109, 62, 67, 97, 110, 39, 116, 32, 115, 116, 111, 112, 32,
-            116, 104, 101, 32, 115, 105, 103, 110, 97, 108, 44, 32, 77, 97,
-            108, 46, 60, 47, 101, 109, 62, 32, 45, 32, 77, 114, 46, 32, 85, 110,
-            105, 118, 101, 114, 115, 101, 10, 10,
-        };
-
-    private async Task ConvertArray()
+@code { 
+    public string UserPublicIpAddress { get; set; }
+    public string UserLocation { get; set; }
+    public string WeatherCondition { get; set; }
+    
+    protected override async Task OnInitializedAsync()
     {
-        var text =
-            await JSRuntime.InvokeAsync<string>("convertArray", quoteArray);
-
-        convertedText = new MarkupString(text);
-
-        StateHasChanged();
+        var IpStackKey = "6dac362ee36f9fe1c6f93d7406ec458e";
+        var OpenWeatherKey = "0532e83d8358d80b1f5d5e1c2b54902a";
+        
+        var IpInfoResponse = await Http.GetAsync("http://ipinfo.io/ip");
+        UserPublicIpAddress = await IpInfoResponse.Content.ReadAsStringAsync();
+        
+        var IpStackResponse = await Http.GetJsonAsync<IpStack>($"http://api.ipstack.com/{UserPublicIpAddress}?access_key={IpStackKey}");
+        UserLocation = IpStackResponse.city;
+        
+        var OpenWeatherResponse = await Http.GetJsonAsync<OpenWeather>($"https://api.openweathermap.org/data/2.5/weather?lat={IpStackResponse.latitude}&lon={IpStackResponse.longitude}&appid={OpenWeatherKey}");
+        WeatherCondition = OpenWeatherResponse.weather[0].main;
+        
+        await base.OnInitializedAsync();
     }
 }
